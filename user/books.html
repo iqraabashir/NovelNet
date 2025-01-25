@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> All books </title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .header {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        position: relative;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .header .signout-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #fff;
+        color: #4caf50;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+      }
+      .header .signout-button:hover {
+        background-color: #f1f1f1;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+      .books {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+      .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        width: 300px;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
+        justify-content: space-between;
+      }
+      #book-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+      .book-item {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        width: 300px;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        display: flex;
+        /* flex-direction: row; */
+      }
+      .book-item img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      .book-item h2 {
+        font-size: 24px;
+        margin: 10px 0;
+      }
+      .book-item p {
+        font-size: 16px;
+        margin: 5px 0;
+      }
+      .book-item .button-group {
+        margin-top: 10px;
+      }
+       .view-button,
+       .download-button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px 0;
+      }
+      .book-item .view-button:hover,
+      .book-item .download-button:hover {
+        background-color: #45a049;
+      }
+      .footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+        /* position: fixed; */
+        bottom: 0;
+        width: 100%;
+        margin-top: 100px;
+      }
+      .searchBtn {
+        /* position: absolute; */
+        /* top: 10px; */
+        /* right: 40px; */
+        background-color: #fff;
+        color: #4caf50;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+      }
+      .genre-filter {
+        margin-top: 20px;
+        margin-left: 10px;
+        font-size: 18px;
+      }
+      .genre-dropdown {
+        padding: 10px;
+        font-size: 17px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <h1>NovelNet</h1>
+      <p>Discover and Enjoy a Vast Collection of Books</p>
+      <button class="searchBtn" ><a style="text-decoration: none; color: #45a049;" href="favorites.html">Favorites</a></button>
+      <button id="signOut" class="signout-button">Sign Out</button>
+      <button class="searchBtn"   ><a style="text-decoration: none; color: #45a049;" href="search_books.html">Search Books</a></button>
+    </div>
+    <div class="genre-filter">
+      <label for="genre">Filter by Genre:</label>
+      <select id="genre" class="genre-dropdown">
+        <option value="all">All</option>
+        <option value="fiction">Fiction</option>
+        <option value="non-fiction">Non-Fiction</option>
+        <option value="mystery">Mystery</option>
+        <option value="fantasy">Fantasy</option>
+        <option value="science-fiction">Science Fiction</option>
+        <option value="biography">Biography</option>
+        <option value="literature">Literature</option>
+        <option value="NCERT">Ncert</option>
+
+
+        <!-- Add more genres as needed -->
+      </select>
+    </div>
+  </div>
+
+    <div class="container">
+      <div id="book-list">
+        <!-- Example of a book item -->
+      
+        <!-- Add more book items here -->
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-analytics.js";
+
+      // Add Firebase products that you want to use
+      import {
+        getAuth,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        addDoc,
+        query,where
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+      const firebaseConfig = {
+    apiKey: "AIzaSyCWnN3xUr6qNWAS2So1wjxOQB6DuXIb1Ls",
+    authDomain: "novelnet-2c3b0.firebaseapp.com",
+    projectId: "novelnet-2c3b0",
+    storageBucket: "novelnet-2c3b0.appspot.com",
+    messagingSenderId: "675791285909",
+    appId: "1:675791285909:web:67de73e04295baf728f59c",
+    measurementId: "G-MJD1BJSM58"
+  };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
+      const db = getFirestore()
+
+      const signOutBtn = document.querySelector("#signOut");
+      const booksContainer = document.getElementById("book-list");
+      const genreDropdown = document.getElementById("genre");
+
+      window.addEventListener("DOMContentLoaded", () => {
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            // alert("user logged in")
+            window.location.href = "/auth/login.html";
+            return;
+          }
+          fetchBooks();
+
+          genreDropdown.addEventListener("change", () => {
+           const selectedGenre = genreDropdown.value;
+           fetchBooks(selectedGenre);
+});
+
+          async function fetchBooks(genre = "all") {
+           booksContainer.innerHTML = "";
+           let q;
+           if (genre === "all") {
+            q = collection(db, "books");
+          } else {
+            q = query(collection(db, "books"), where("genre", "==", genre));
+          }
+
+          try {
+           const querySnapshot = await getDocs(q);
+
+           if (querySnapshot.empty) {
+             booksContainer.innerHTML = "<p>No books available in this genre.</p>";
+             return;
+          }
+
+           querySnapshot.forEach((book) => {
+            const bookData = book.data();
+            const bookCard = document.createElement('div');
+            bookCard.className = 'card';
+            bookCard.innerHTML = `
+              <img src=${bookData.thumbnail} />
+              <h2>${bookData.title}</h2>
+              <p><strong>Author:</strong> ${bookData.author}</p>
+              <p><strong>Year:</strong> ${bookData.year}</p>
+              <p><strong>Genre:</strong> ${bookData.genre}</p>
+              <a href="${bookData.url}" target="_blank" class="view-button">Read Book</a>
+              <button class="view-button" id="addToFav" onclick="addToFavorites('${bookData.id}')">Add to Favorites</button>
+           `;
+           booksContainer.appendChild(bookCard);
+         });
+       } catch (e) {
+        console.error("Error fetching documents: ", e);
+        alert("Error fetching books");
+      }
+    }
+
+    // fetchBooks();
+
+//     genreDropdown.addEventListener("change", () => {
+//       const selectedGenre = genreDropdown.value;
+//       fetchBooks(selectedGenre);
+// });
+          window.addToFavorites =  async function (bookId) {
+            const user = auth.currentUser;
+            if (user) {
+                console.log(bookId)
+                const favoritesCollection = collection(db, 'favorites');
+                const q = query(favoritesCollection, where('userId', '==', user.uid), where('bookId', '==', bookId));
+                const querySnapshot = await getDocs(q);
+                console.log(!querySnapshot.empty)
+                if (!querySnapshot.empty) {
+                    alert('Book is already in favorites');
+                    return;
+                }
+                await addDoc(favoritesCollection, {
+                    userId: user.uid,
+                    bookId: bookId
+                });
+                alert('Book added to favorites');
+            } else {
+                alert('You need to be logged in to add favorites');
+            }
+        }
+
+
+        //   try {
+        //   const querySnapshot = await getDocs(collection(db, "books"));
+        //   querySnapshot.forEach((book) => {
+        //     // console.log(book.data())
+        //     const bookData =  book.data()
+        //     // console.log(book.id)
+        //     const bookCard = document.createElement('div');
+        //     bookCard.className = 'card';
+        //     bookCard.innerHTML = `
+        //       <img src=${bookData.thumbnail} />
+        //         <h2>${bookData.title}</h2>
+        //         <p><strong>Author:</strong> ${bookData.author}</p>
+        //         <p><strong>Year:</strong> ${bookData.year}</p>
+        //         <p><strong>Genre:</strong> ${bookData.genre}</p>
+        //         <a href="${bookData.url}" target="_blank" class="view-button">Read Book</a>
+        //         <button class="view-button" id="addToFav" onclick="addToFavorites('${bookData.id}')">Add to Favorites</button>
+
+        //     `;
+        //     booksContainer.appendChild(bookCard);
+        //   });
+        //   // alert("Book added sucessfully"); 
+        // } catch (e) {
+        //   console.error("Error adding document: ", e);
+        //   alert("error adding book");
+        // }
+
+
+
+          
+        });
+      });
+
+      signOutBtn.addEventListener("click", () => {
+        signOut(auth)
+          .then(() => {
+            // Sign-out successful.
+            window.location.href = "/";
+          })
+          .catch((error) => {
+            // An error happened.
+            alert("error logging out");
+          });
+      });
+    </script>
+  </body>
+</html>

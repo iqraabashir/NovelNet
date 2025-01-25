@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favourite Books</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header .signout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            color: #4caf50;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .header .signout-button:hover {
+            background-color: #f1f1f1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .books-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .book-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            width: 300px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .book-card h2 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .book-card p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .book-card button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .book-card button:hover {
+            background-color: #45a049;
+        }
+
+        .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .view-button,
+       .download-button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px 0;
+      }
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            width: 300px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            /* flex-wrap: wrap; */
+            justify-content: space-between;
+            margin: 150px 0;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Favorite Books</h1>
+        <button id="signOut" class="signout-button">Sign Out</button>
+    </div>
+
+    <div class="container">
+        <div class="books-container" id="booksContainer">
+            <!-- Favorite books will be displayed here -->
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, query,deleteDoc,where, getDocs, addDoc, getDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+    apiKey: "AIzaSyCWnN3xUr6qNWAS2So1wjxOQB6DuXIb1Ls",
+    authDomain: "novelnet-2c3b0.firebaseapp.com",
+    projectId: "novelnet-2c3b0",
+    storageBucket: "novelnet-2c3b0.appspot.com",
+    messagingSenderId: "675791285909",
+    appId: "1:675791285909:web:67de73e04295baf728f59c",
+    measurementId: "G-MJD1BJSM58"
+  };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        //   const analytics = getAnalytics(app);x
+        const auth = getAuth(app);
+        const db = getFirestore()
+        window.removeFromFavorites = async function(favoriteId) {
+            try {
+                await deleteDoc(doc(db, 'favorites', favoriteId));
+                alert('Book removed from favorites');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error removing book from favorites', error);
+                alert('Failed to remove book from favorites');
+            }
+        };
+        async function displayFavoriteBooks(user) {
+            const booksContainer = document.getElementById('booksContainer');
+            booksContainer.innerHTML = "Loading...";
+
+            const favoritesCollection = collection(db, 'favorites');
+            const q = query(favoritesCollection, where('userId', '==', user.uid));
+            const querySnapshot = await getDocs(q);
+
+            // booksContainer.innerHTML = "";
+            if (querySnapshot.empty) {
+                booksContainer.innerHTML = "<p>No favorite books found</p>";
+                return;
+            }
+
+
+            booksContainer.innerHTML = "";
+
+            for (const favoriteDoc of querySnapshot.docs) {
+                const bookId = favoriteDoc.data().bookId;
+                const bookDoc = await getDoc(doc(db, 'books', bookId));
+
+                if (bookDoc.exists()) {
+                    const book = bookDoc.data();
+                    const bookCard = document.createElement('div');
+                    bookCard.classList.add('card');
+                    bookCard.innerHTML = `
+                        <img src='${book.thumbnail}' />
+                        <h2>${book.title}</h2>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                        <p><strong>Publishing Year:</strong> ${book.year}</p>
+                        <p><strong>Genre:</strong> ${book.genre}</p>
+                        <p><strong>Description:</strong> ${book.description}</p>
+                                        <a href="${book.url}" target="_blank" class="view-button">Read Book</a>
+                <button class="view-button" id="addToFav" onclick="removeFromFavorites('${favoriteDoc.id}')">Remove from Favorites</button>
+
+                    `;
+                    booksContainer.appendChild(bookCard);
+                }
+            }
+        }
+
+        window.viewBook = function (bookId) {
+            window.location.href = `/books/view_book.html?id=${bookId}`;
+        };
+
+        document.getElementById('signOut').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = '/login.html';
+            }).catch((error) => {
+                console.error('Sign Out Error', error);
+            });
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                displayFavoriteBooks(user);
+            } else {
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

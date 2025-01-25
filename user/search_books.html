@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Books</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header .signout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            color: #4caf50;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .header .signout-button:hover {
+            background-color: #f1f1f1;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #4caf50;
+            background-color: #4caf50;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        .search-bar button:hover {
+            background-color: #45a049;
+        }
+        .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        margin-bottom: 150px;
+        width: 300px;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
+        justify-content: space-between;
+      }
+        .books-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .book-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            width: 300px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .view-button,
+       .download-button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px 0;
+      }
+        .book-card h2 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .book-card p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            margin-top: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Search Books</h1>
+        <button id="signOut" class="signout-button">Sign Out</button>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for books...">
+            <button  id="searchButton">Search</button>
+        </div>
+        <div class="books-container" id="booksContainer">
+            <!-- Books will be displayed here -->
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs,addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        const firebaseConfig = {
+    apiKey: "AIzaSyCWnN3xUr6qNWAS2So1wjxOQB6DuXIb1Ls",
+    authDomain: "novelnet-2c3b0.firebaseapp.com",
+    projectId: "novelnet-2c3b0",
+    storageBucket: "novelnet-2c3b0.appspot.com",
+    messagingSenderId: "675791285909",
+    appId: "1:675791285909:web:67de73e04295baf728f59c",
+    measurementId: "G-MJD1BJSM58"
+  };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+    //   const analytics = getAnalytics(app);x
+      const auth = getAuth(app);
+      const db = getFirestore()
+      
+     
+      
+
+
+        document.getElementById('searchButton').addEventListener('click', async () => {
+            const searchInput = document.getElementById('searchInput').value;
+            if (searchInput.trim() === "") {
+                alert("Please enter a search term");
+                return;
+            }
+
+            const booksContainer = document.getElementById('booksContainer');
+            booksContainer.innerHTML = "Loading...";
+
+            const booksCollection = collection(db, 'books');
+            const q = query(booksCollection, where('title', '>=', searchInput), where('title', '<=', searchInput + '\uf8ff'));
+            const querySnapshot = await getDocs(q);
+
+           window.addToFavorites =  async function (bookId) {
+            const user = auth.currentUser;
+            if (user) {
+                console.log(bookId)
+                const favoritesCollection = collection(db, 'favorites');
+                const q = query(favoritesCollection, where('userId', '==', user.uid), where('bookId', '==', bookId));
+                const querySnapshot = await getDocs(q);
+                console.log(querySnapshot)
+                if (!querySnapshot.empty) {
+                    alert('Book is already in favorites');
+                    return;
+                }
+                await addDoc(favoritesCollection, {
+                    userId: user.uid,
+                    bookId: bookId
+                });
+                alert('Book added to favorites');
+            } else {
+                
+                alert('You need to be logged in to add favorites');
+            }
+        }
+
+
+            booksContainer.innerHTML = "";
+            querySnapshot.forEach((doc) => {
+                const book = doc.data();
+                const bookCard = document.createElement('div');
+                bookCard.classList.add('card');
+                bookCard.innerHTML = `
+                 <img src=${book.thumbnail} />
+                    <h2>${book.title}</h2>
+                    <p><strong>Author:</strong> ${book.author}</p>
+                    <p><strong>Publishing Year:</strong> ${book.year}</p>
+                    <p><strong>Genre:</strong> ${book.genre}</p>
+                    <p><strong>Description:</strong> ${book.description}</p>
+                <a href="${book.url}" target="_blank" class="view-button">Read Book</a>
+                  <button class="view-button" id="addToFav" onclick="addToFavorites('${doc.id}')">Add to Favorites</button>
+
+                `;
+                booksContainer.appendChild(bookCard);
+            });
+        });
+
+        // function viewBook(bookId) {
+        //     window.location.href = `/books/view_book.html?id=${bookId}`;
+        // }
+
+        // document.getElementById('signOut').addEventListener('click', () => {
+        //     auth.signOut().then(() => {
+        //         window.location.href = '/login.html';
+        //     }).catch((error) => {
+        //         console.error('Sign Out Error', error);
+        //     });
+        // });
+
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '/auth/login.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovelNet - View Book</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .header {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        position: relative;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .header .signout-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #fff;
+        color: #4caf50;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+      }
+      .header .signout-button:hover {
+        background-color: #f1f1f1;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+      .book-details {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .book-details h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .book-details p {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .book-details .buttons {
+        display: flex;
+        justify-content: space-between;
+      }
+      .book-details .button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        margin-top: 20px;
+      }
+      .book-details .button.edit {
+        background-color: #2196f3;
+      }
+      .book-details .button.delete {
+        background-color: #f44336;
+      }
+      .book-details .button:hover {
+        background-color: #45a049;
+      }
+      .book-details .button.edit:hover {
+        background-color: #1e88e5;
+      }
+      .book-details .button.delete:hover {
+        background-color: #e53935;
+      }
+      .footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Book Details</h1>
+      <!-- <a href="/">Home</a> -->
+      <a href="/" class="signout-button">Home</a>
+    </div>
+
+    <div class="container">
+      <div id="bookDetails" class="book-details">
+        <h2>Loading...</h2>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-analytics.js";
+
+      // Add Firebase products that you want to use
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDoc,
+        addDoc,
+        query,
+        doc,
+        deleteDoc
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+    apiKey: "AIzaSyCWnN3xUr6qNWAS2So1wjxOQB6DuXIb1Ls",
+    authDomain: "novelnet-2c3b0.firebaseapp.com",
+    projectId: "novelnet-2c3b0",
+    storageBucket: "novelnet-2c3b0.appspot.com",
+    messagingSenderId: "675791285909",
+    appId: "1:675791285909:web:67de73e04295baf728f59c",
+    measurementId: "G-MJD1BJSM58"
+  };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+       // Get the book ID from the URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('id');
+
+    // Fetch and display book details
+    const bookDetailsContainer = document.getElementById('bookDetails');
+
+
+    // const querySnapshot  =await getDoc(collection(db, "books",bookId))
+    const docRef  = doc(db,"books",bookId)
+    const querySnapshot = await getDoc(docRef)
+    const book = querySnapshot.data()
+    // console.log(querySnapshot.data())
+            bookDetailsContainer.innerHTML = `
+                <h2>${book.title}</h2>
+                <p><strong>Author:</strong> ${book.author}</p>
+                <p><strong>Genre:</strong> ${book.genre}</p>
+                <p><strong>Year:</strong> ${book.year}</p>
+                <p><strong>Description:</strong> ${book.description}</p>
+                <img src="${book.thumbnail}" alt="${book.title} thumbnail" style="width:100%; max-width:300px; display:block; margin: 20px auto;">
+                <div class="buttons">
+                    <a href="edit_book.html?id=${bookId}" class="button edit">Edit</a>
+                    <button id="delete_btn"  class="button delete">Delete</button>
+                </div>
+            `;
+    // querySnapshot.forEach( (book) => {
+        // console.log(book.data())
+    // } )
+
+const deleteBtn = document.querySelector("#delete_btn")
+deleteBtn.addEventListener("click", async () => {
+    if (confirm('Are you sure you want to delete this book?')) {
+            await deleteDoc(doc(db, 'books', bookId));
+            alert('Book deleted successfully');
+            window.location.href = '/books/view_all_books.html';
+        }
+} )
+   
+    
+    </script>
+  </body>
+</html>

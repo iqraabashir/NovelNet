@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovelNet - Your Ultimate Library App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        
+      }
+
+      .header {
+        background-color: #4caf50;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 36px;
+        
+      }
+      
+      .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+      .hero-section {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 30px;
+        
+      }
+      .hero-section img {
+        width: 300px;
+        height: auto;
+      }
+      .features {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 50px;
+        
+        /* new */
+        /* flex-wrap: wrap; */
+      }
+      .feature {
+        text-align: center;
+        /* new */
+        /* flex: 1 1 30%;
+        margin: 20px; */
+
+      }
+      .feature img {
+        width: 150px;
+        height: auto;
+        margin-bottom: 20px;
+      }
+      .feature h2 {
+        margin-top: 0;
+      }
+      .footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+        /* position: fixed; */
+        /* old */
+        bottom: 0;
+        width: 100%;
+      }
+
+      .get__started {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #4caf50;
+        width: fit-content;
+        margin: 0 auto;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+      .get__started a {
+        text-decoration: none;
+        color: white;
+        
+      }
+      /* new */
+      @media (max-width: 768px) {
+      .features {
+        flex-direction: column;
+        align-items: center;
+      }
+      .feature {
+        width: 100%;
+      }
+    }
+    </style>
+  </head>
+  <body>
+    
+    <div class="header">
+      
+      <h1>NovelNet</h1>
+      <p>Your Ultimate Library App</p>
+    </div>
+
+    <div class="container">
+      <div class="hero-section">
+        <!-- <img src="./assets/interface.png"> -->
+        <img src="./assets/logo.png" alt="NovelNet Logo" />
+        
+        <p>
+          Welcome to NovelNet, where you can discover and enjoy a vast
+          collection of books!
+        </p>
+        
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTc6GBMBktb9wz35JnzEP7Yzv82EPOfOA_dxg8fFjhy9g&s"
+            alt="Search Icon"
+          />
+          <h2>Search Books</h2>
+          <p>
+            Find your favorite books easily using our advanced search feature.
+          </p>
+        </div>
+        <div class="feature">
+          <img
+            src="data:image/jpeg;base64,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"
+            alt="Read Icon"
+          />
+          <h2>Read Online</h2>
+          <p>Read books online anytime, anywhere, on any device.</p>
+        </div>
+        <div class="feature">
+          <img
+            src="data:image/png;base64,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"
+            alt="Download Icon"
+          />
+          <h2>Download</h2>
+          <p>Download books for offline reading and enjoy them on the go.</p>
+        </div>
+      </div>
+    </div>
+    <div class="get__started"><a href="./auth/login.html">Get Started</a></div>
+    <div class="footer">
+      <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>

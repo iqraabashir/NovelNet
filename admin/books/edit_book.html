@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovelNet - Edit Book</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+      }
+
+      .header,
+      .footer {
+        background-color: #3a3a3a;
+        color: white;
+        text-align: center;
+        padding: 1em 0;
+      }
+
+      .header h1,
+      .footer p {
+        margin: 0;
+      }
+
+      .signout-button {
+        background-color: #f44336;
+        color: white;
+        padding: 0.5em 1em;
+        text-decoration: none;
+        border-radius: 5px;
+        float: right;
+        margin-right: 1em;
+        margin-top: -2.5em;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 2em auto;
+        padding: 1em;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .books,
+      .book-details,
+      .book-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+      }
+
+      .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h2 {
+        margin-top: 0;
+      }
+
+      .card p {
+        margin: 0.5em 0;
+      }
+
+      .button {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5em 1em;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .button.edit {
+        background-color: #ffc107;
+      }
+
+      .button.delete {
+        background-color: #dc3545;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 1em;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1em;
+      }
+
+      .form-group label {
+        margin-bottom: 0.5em;
+        font-weight: bold;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        padding: 0.5em;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+      }
+
+      .form-group input[type="url"],
+      .form-group input[type="number"] {
+        width: 100%;
+      }
+
+      .footer {
+        margin-top: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Edit Book</h1>
+      <a href="signout_link" class="signout-button">Home</a>
+    </div>
+
+    <div class="container">
+      <div class="book-form">
+        <h2>Edit Book Details</h2>
+        <form id="editBookForm">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="author">Author</label>
+            <input type="text" id="author" name="author" required />
+          </div>
+          <div class="form-group">
+            <label for="year">Year</label>
+            <input type="number" id="year" name="year" required />
+          </div>
+          <!-- <div class="form-group">
+            <label for="genre">Genre</label>
+            <input type="text" id="genre" name="genre" required />
+          </div> -->
+          <div class="form-group">
+            <label for="genre">Genre</label>
+            <select id="genre" name="genre" required>
+              <option value="fiction">Fiction</option>
+              <option value="non-fiction">Non-Fiction</option>
+              <!-- <option value="nonfiction">Non-fiction</option> -->
+              <option value="mystery">Mystery</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="science-fiction">Science Fiction</option>
+              <!-- <option value="sciencefiction">Science Fiction</option> -->
+              <option value="biography">Biography</option>
+              <option value="literature">Literature</option>
+              <option value="NCERT">Ncert</option>
+
+              <!-- Add more genres as needed -->
+            </select>
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="thumbnail">Thumbnail URL</label>
+            <input type="url" id="thumbnail" name="thumbnail" required />
+          </div>
+          <div class="form-group">
+            <label for="url">Book URL</label>
+            <input type="url" id="url" name="url" required />
+          </div>
+          <div class="buttons">
+            <button type="submit" class="button">Save</button>
+            <a href="view_book.html?id=${bookId}" class="button cancel"
+              >Cancel</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2024 NovelNet. All rights reserved.</p>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-analytics.js";
+
+      // Add Firebase products that you want to use
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDoc,
+        addDoc,
+        query,
+        doc,
+        deleteDoc,
+        updateDoc
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+      const firebaseConfig = {
+    apiKey: "AIzaSyCWnN3xUr6qNWAS2So1wjxOQB6DuXIb1Ls",
+    authDomain: "novelnet-2c3b0.firebaseapp.com",
+    projectId: "novelnet-2c3b0",
+    storageBucket: "novelnet-2c3b0.appspot.com",
+    messagingSenderId: "675791285909",
+    appId: "1:675791285909:web:67de73e04295baf728f59c",
+    measurementId: "G-MJD1BJSM58"
+  };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get("id");
+        const bookRef = doc(db, "books", bookId);
+        const bookDoc = await getDoc(bookRef);
+
+        if (bookDoc.exists()) {
+          const book = bookDoc.data();
+          document.getElementById("title").value = book.title;
+          document.getElementById("author").value = book.author;
+          document.getElementById("year").value = book.year;
+          document.getElementById("genre").value = book.genre;
+          document.getElementById("description").value = book.description;
+          document.getElementById("thumbnail").value = book.thumbnail;
+          document.getElementById("url").value = book.url;
+        } else {
+          alert("Book not found");
+          window.location.href = "index.html";
+        }
+
+        document
+          .getElementById("editBookForm")
+          .addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const updatedBook = {
+              title: document.getElementById("title").value,
+              author: document.getElementById("author").value,
+              year: document.getElementById("year").value,
+              genre: document.getElementById("genre").value,
+              description: document.getElementById("description").value,
+              thumbnail: document.getElementById("thumbnail").value,
+              url: document.getElementById("url").value,
+            };
+
+            await updateDoc(bookRef, updatedBook);
+            alert("Book updated successfully");
+            window.location.href = `view_book.html?id=${bookId}`;
+          });
+      });
+    </script>
+  </body>
+</html>
